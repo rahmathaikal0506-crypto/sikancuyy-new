@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RhyxiL Duo Cees - SikanCuyy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="../style.css">
+    <link rel="shortcut icon" href="../favicon/08_besto_friendo.svg" type="image/svg+xml">
+    <style>
+        .hero-img-box {
+            width: 100%;
+            height: 350px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-lg);
+        }
+        .hero-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .hero-img-box:hover img {
+            transform: scale(1.05);
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+        .gallery-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .gallery-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent);
+        }
+        .gallery-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+        }
+        .gallery-card .caption {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            font-weight: 500;
+        }
+        .collage-box {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 5px;
+            margin-top: 20px;
+        }
+        .collage-box img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        @media (max-width: 600px) {
+            .collage-box { grid-template-columns: repeat(3, 1fr); }
+            .hero-img-box { height: 250px; }
+        }
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        .lightbox.open { display: flex; }
+        .lightbox img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: var(--radius-md);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <header>
+        <div class="logo-badge"><span></span> Friendship</div>
+        <h1>Duo <span class="accent">Cees</span></h1>
+        <p class="subtitle">Besto Frendo · Rahmat Haikal & Ilal Ilhamdi</p>
+        <div class="divider"></div>
+    </header>
+
+    <div class="hero-img-box">
+        <img id="heroImage" src="img/foto (1).jpg" alt="Hero Image" />
+    </div>
+
+    <div class="card" style="margin-bottom: 25px; padding: 15px;">
+        <div class="form-group" style="margin: 0; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-search" style="color: var(--text-secondary);"></i>
+            <input type="search" id="search" placeholder="Cari momen..." style="border: none; padding: 0; background: transparent;" />
+        </div>
+    </div>
+
+    <div id="gallery" class="gallery-grid">
+        <!-- Injected -->
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <button id="btnCollage" class="btn btn-secondary">Tampilkan Collage</button>
+    </div>
+
+    <div id="collageSection" class="card" style="display: none; margin-top: 25px;">
+        <h3 class="section-title">Semua Foto</h3>
+        <div id="collage" class="collage-box"></div>
+    </div>
+
+    <footer style="margin-top: 40px; text-align: center; font-size: 0.85rem; color: var(--text-secondary); opacity: 0.7;">
+        &copy; 2025 Duo Cees · SikanCuyy
+    </footer>
+</div>
+
+<a href="../index.html" class="back-btn" title="Kembali">
+    <i class="fas fa-arrow-left"></i>
+</a>
+
+<button class="dark-toggle" onclick="toggleDark()" title="Toggle Dark Mode">
+    <i class="fas fa-moon" id="toggleIcon"></i>
+</button>
+
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <span class="lightbox-close">&times;</span>
+    <div style="text-align: center; position: relative;">
+        <img id="lbImage" src="" alt="Lightbox" onclick="event.stopPropagation()" />
+        <p id="lbCaption" style="color: white; margin-top: 15px; font-weight: 600;"></p>
+    </div>
+</div>
+
+<script>
+    const body = document.body;
+    const icon = document.getElementById('toggleIcon');
+
+    if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark');
+        if (icon) icon.className = 'fas fa-sun';
+    }
+
+    function toggleDark() {
+        body.classList.toggle('dark');
+        const isDark = body.classList.contains('dark');
+        if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    const items = [
+        { id: '3', caption: 'RhyxiL 3', src: 'img/foto (3).jpg' },
+        { id: '4', caption: 'RhyxiL 4', src: 'img/foto (4).jpg' },
+        { id: '5', caption: 'RhyxiL 5', src: 'img/foto (5).jpg' },
+        { id: '6', caption: 'RhyxiL 6', src: 'img/foto (6).jpg' },
+        { id: '7', caption: 'RhyxiL 7', src: 'img/foto (7).jpg' },
+        { id: '8', caption: 'RhyxiL 8', src: 'img/foto (8).jpg' },
+        { id: '9', caption: 'RhyxiL 9', src: 'img/foto (9).jpg' },
+        { id: '10', caption: 'RhyxiL 10', src: 'img/foto (10).jpg' },
+        { id: '11', caption: 'RhyxiL 11', src: 'img/foto (11).jpg' },
+        { id: '12', caption: 'RhyxiL 12', src: 'img/foto (12).jpg' },
+        { id: '13', caption: 'RhyxiL 13', src: 'img/foto (13).jpg' },
+        { id: '14', caption: 'RhyxiL 14', src: 'img/foto (14).jpg' },
+        { id: '15', caption: 'RhyxiL 15', src: 'img/foto (15).jpg' },
+        { id: '16', caption: 'RhyxiL 16', src: 'img/foto (16).jpg' },
+        { id: '17', caption: 'RhyxiL 17', src: 'img/foto (17).jpg' },
+        { id: '18', caption: 'RhyxiL 18', src: 'img/foto (18).jpg' },
+        { id: '19', caption: 'RhyxiL 19', src: 'img/foto (19).jpg' },
+        { id: '20', caption: 'RhyxiL 20', src: 'img/foto (20).jpg' },
+        { id: '21', caption: 'RhyxiL 21', src: 'img/foto (21).jpg' },
+        { id: '22', caption: 'RhyxiL 22', src: 'img/foto (22).jpg' },
+        { id: '23', caption: 'RhyxiL 23', src: 'img/foto (23).jpg' },
+        { id: '24', caption: 'RhyxiL 24', src: 'img/foto (24).jpg' },
+        { id: '25', caption: 'RhyxiL 25', src: 'img/foto (25).jpg' },
+        { id: '26', caption: 'RhyxiL 26', src: 'img/foto (26).jpg' },
+        { id: '27', caption: 'RhyxiL 27', src: 'img/foto (27).jpg' },
+        { id: '28', caption: 'RhyxiL 28', src: 'img/foto (28).jpg' },
+        { id: '29', caption: 'RhyxiL 29', src: 'img/foto (29).jpg' },
+        { id: '30', caption: 'RhyxiL 30', src: 'img/foto (30).jpg' },
+    ];
+
+    const galleryEl = document.getElementById('gallery');
+    const searchInput = document.getElementById('search');
+
+    function renderGallery(filter = '') {
+        galleryEl.innerHTML = '';
+        const filtered = items.filter(i => i.caption.toLowerCase().includes(filter.toLowerCase()));
+        
+        filtered.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'gallery-card';
+            card.onclick = () => openLightbox(item);
+            card.innerHTML = `
+                <img src="${item.src}" alt="${item.caption}" loading="lazy">
+                <div class="caption">${item.caption}</div>
+            `;
+            galleryEl.appendChild(card);
+        });
+    }
+
+    function openLightbox(item) {
+        document.getElementById('lbImage').src = item.src;
+        document.getElementById('lbCaption').textContent = item.caption;
+        document.getElementById('lightbox').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    searchInput.addEventListener('input', (e) => renderGallery(e.target.value));
+
+    const btnCollage = document.getElementById('btnCollage');
+    const collageSection = document.getElementById('collageSection');
+    const collageEl = document.getElementById('collage');
+
+    btnCollage.onclick = () => {
+        const isHidden = collageSection.style.display === 'none';
+        collageSection.style.display = isHidden ? 'block' : 'none';
+        btnCollage.textContent = isHidden ? 'Sembunyikan Collage' : 'Tampilkan Collage';
+        
+        if (isHidden && collageEl.innerHTML === '') {
+            items.forEach(item => {
+                const img = document.createElement('img');
+                img.src = item.src;
+                img.loading = 'lazy';
+                collageEl.appendChild(img);
+            });
+        }
+    };
+
+    renderGallery();
+</script>
+</body>
+</html>
